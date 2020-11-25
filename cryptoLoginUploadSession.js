@@ -14,19 +14,21 @@ var multer = require('multer');
 var fs = require('fs');
 var cors = require('cors');
 var mykey = '###3333###';
+var axios = require("axios");
 app.set('port',3000);
 
 var database;
 var UserSchema;
 var fileSchema;
+var pageSchema;
 var UserModel;
 var fileModel;
+var pageModel;
 
 function connectDB() {
     var databaseUrl = 'mongodb://localhost:27017/project';
     mongoose.connect(databaseUrl);
     database = mongoose.connection;
-
     database.error(console.error.bind(console,'연결장애'));
     database.on('open',function () {
         console.log('데이터베이스 연결 성공');
@@ -41,8 +43,15 @@ function connectDB() {
             path: String,
             size: Number
         });
+        pageSchema = mongoose.Schema({
+            title: String,
+            addr: String,
+            developer: [{id:String, name:String}],
+            content: String
+        });
         fileModel=mongoose.model("files",fileSchema);
         UserModel=mongoose.model("users",UserSchema);
+        pageModel= mongoose.model("pages",pageSchema);
     });
     database.on('disconnect',function () {
         setInterval(connectDB,5000);
@@ -92,8 +101,8 @@ function createUserSchema() {
 }
 
 app.set('port',3000);
-
-app.use(bodyParser.urlencoded({extended:false}));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({extended:true}));
 app.use('/public',static(path.join(__dirname, 'public')));
 app.use('/upload',static(path.join(__dirname, 'upload')));
 app.use(cookieParser());
@@ -101,14 +110,62 @@ app.use(expressSession({
     secret:'key',
     resave:true,
     cookie:{
-        maxAge:1000*60*30///////////////////////////////
+        maxAge:1000*60*30///30분까지
     },
     saveUninitialized:true
 }));
 app.use(cors());
-app.get('/process/logout',function(req,res){
+//페이지 정보 DB 등록 함수
+var addPage = function(database, title, addr, developer, content, callback){
+    console.log('addPage 호출');
+    var page = new pageModel({
+        "title": title,
+        "addr": addr,
+        "developer": developer,
+        "content": content
+        });
+    console.log('page 생성');
+    page.save(function (err) {
+        if(err){
+            console.log("에러");
+            callback(err, null);
+        }
+        console.log("페이지데이터 추가");
+        callback(null, page);
+    });
+}
+//페이지 정보 DB 등록
+app.post('/process/save',function(req,res){
+    console.log("page등록");
+    console.log(req.body);
+
+    var paramTitle = req.body.title;
+    var paramAddr = req.body.addr;
+    var paramDeveloper = req.body.developer;
+    var paramContents = req.body.content;
+    if(database){
+        addPage(database,paramTitle,paramAddr,paramDeveloper,paramContents,function(err,result) {
+            console.log("콜백 진입");
+            if(err){
+                console.log('err');
+                res.send({});
+            }
+            if(result){
+                console.log("결과");
+               //console.dir(result);
+                res.send("성공");
+            }else{
+                console.log('실패');
+                res.send({});
+            }
+        });
+    }
+})
+//logout route
+app.post('/process/logout',function(req,res){
     req.session.destroy();
 })
+//login route
 app.post('/process/login',function (req,res) {
     console.log('/process/login  호출됨');
     var paramId =req.param('id');
@@ -141,7 +198,7 @@ app.post('/process/login',function (req,res) {
 
     }
 });
-
+//user 추가
 app.post('/process/adduser',function (req,res) {
     console.log('/process/adduser 호출');
     var paramId = req.body.id;
@@ -179,7 +236,7 @@ var errorHandler = expressErrorHandler({
         '404':'./public/404.html'
     }
 });
-//추가
+//유저 추가 함수
 var addUser =  function(database, id, password, name, callback){
     console.log('addUser 호출');
     var user = new UserModel({"id":id, "password":password, "name":name});
@@ -342,7 +399,22 @@ app.use("/files/:fileName",function (req,res) {
         res.send(filePath);
     });
 });
-
+app.get('/test',function(req,res){
+    console.log("/test 진입");
+    var dummy = {
+        title: "poty",
+        addr: "www.xxxx.co.kr",
+        /*developer: "B511084 백경현, B 유현우, B 천성혁",*/
+        developer: [{id:"B511084",name:"백경현"}, {id:"B", name:"유현우"}, {id:"B",name:"천성혁"}],
+        content: "항상 건강하시고 또 건강하세요"
+    };
+    console.log(dummy);
+    axios({
+        url:"http://localhost:3000/process/save",
+        method:"post",
+        data:dummy
+    }).then((e)=>{res.send(e);}).catch((error)=>{res.send("err")});
+});
 app.use(expressErrorHandler.httpError(404));
 app.use(errorHandler);
 app.all('*',function (req,res) {
