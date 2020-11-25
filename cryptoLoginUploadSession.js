@@ -181,16 +181,11 @@ app.post('/process/login',function (req,res) {
                 var username = docs[0].name;
                 req.session.user_id=docs[0].id;/////////////////////////
                 res.writeHead('200',{'Content-Type':'text/html;charset=utf8'});
-                res.write('<h1>로그인 성공</h1>');
-                res.write('<div><p>사용자 아이디:'+paramId+'</p></div>');
-                res.write('<div><p>사용자 이름:'+username+'</p></div>');
                 res.write("<br><br><a href='/public/login.html'>다시 로그인하기</a>");
                 res.end();
             }
             else{
                 res.writeHead('200',{'Content-Type':'text/html;charset=utf8'});
-                res.write('<h2>데이터베이스연결실패</h2>');
-                res.write('<div><p>데이터베이스에 연결 하지 못했다.</p></div>');
                 res.end();
             }
         })
@@ -399,6 +394,7 @@ app.use("/files/:fileName",function (req,res) {
         res.send(filePath);
     });
 });
+
 app.get('/test',function(req,res){
     console.log("/test 진입");
     var dummy = {
@@ -415,6 +411,28 @@ app.get('/test',function(req,res){
         data:dummy
     }).then((e)=>{res.send(e);}).catch((error)=>{res.send("err")});
 });
+app.use('/pages/:title',function(req,res){
+    var title = req.params.title;
+    console.log(title);
+    pageModel.findOne({title:title},function(err,results){
+        if(err){
+            res.send({});
+        }
+        console.dir(results);
+        var developerArray=[];
+        for(var i=0; i<results.developer.length; i++){
+            developerArray.push({id:results.developer[i].id, password:results.developer[i].name});
+        }
+        var pageData = {
+            "title": results.title,
+            "addr": results.addr,
+            "developer": developerArray,
+            "content": results.content
+        };
+        console.log(pageData);
+        res.send(pageData);
+    });
+})
 app.use(expressErrorHandler.httpError(404));
 app.use(errorHandler);
 app.all('*',function (req,res) {
