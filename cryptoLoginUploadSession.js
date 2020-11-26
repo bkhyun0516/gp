@@ -178,8 +178,8 @@ app.use('/process/logout',function(req,res){
 //login route
 app.post('/process/login',function (req,res) {
     console.log('/process/login  호출됨');
-    var paramId =req.param('id');
-    var paramPassword = req.param('password');
+    var paramId =req.body.id;
+    var paramPassword = req.body.password;
     if(database){
         authUser(database, paramId,paramPassword,function (err,docs) {
             if(err){
@@ -190,7 +190,10 @@ app.post('/process/login',function (req,res) {
                 console.dir(docs);
                 var username = docs[0].name;
                 req.session.user_id=docs[0].id;
-                res.end();
+                req.session.save();
+                console.log("session저장");
+                console.log(req.session);
+                res.send(req.session);
             }
             else{
                 res.end();
@@ -202,7 +205,6 @@ app.post('/process/login',function (req,res) {
 app.use('/getSessionId',function (req,res) {
     console.log("SessionId");
     console.log(req.session);
-
     if(req.session.user_id){
         var userId = req.session.user_id;
         res.send({sessionId: userId});
@@ -397,38 +399,7 @@ app.use("/files/:fileName",function (req,res) {
     });
 });
 
-app.get('/test',function(req,res){
-    console.log("/test 진입");
-    var dummy = {
-        title: "poty",
-        addr: "www.xxxx.co.kr",
-        /*developer: "B511084 백경현, B 유현우, B 천성혁",*/
-        developer: [{id:"B511084",name:"백경현"}, {id:"B", name:"유현우"}, {id:"B",name:"천성혁"}],
-        content: "항상 건강하시고 또 건강하세요"
-    };
-    console.log(dummy);
-    axios({
-        url:"http://localhost:4000/process/save",
-        method:"post",
-        data:dummy
-    }).then((e)=>{console.log("정상");res.send(e.status)}).catch((error)=>{console.log(error); res.send(error)});
-});
-app.get('/test2',function(req,res){
-    console.log("/test 진입");
-    var dummy = {
-        title: "poty2",
-        addr: "www.xxxx.co.kr",
-        /*developer: "B511084 백경현, B 유현우, B 천성혁",*/
-        developer: [{id:"B511084",name:"백경현"}, {id:"B", name:"유현우"}, {id:"B",name:"천성혁"}],
-        content: "항상 건강하시고 또 건강하세요"
-    };
-    console.log(dummy);
-    axios({
-        url:"http://localhost:4000/process/save",
-        method:"post",
-        data:dummy
-    }).then((e)=>{console.log("정상");res.send(e.status)}).catch((error)=>{console.log(error); res.send(error)});
-});
+
 app.use('/pages/:title',function(req,res){
     var title = req.params.title;
     console.log(title);
@@ -480,6 +451,88 @@ app.use('/delete/:title',function (req,res) {
     var paramsTitle = req.params.title;
     console.log(paramsTitle);
     pageModel.deleteOne({title:paramsTitle}).then(e=>{console.log(e); res.end();}).catch(err=>{console.log("err")});
+});
+app.use('/users/:id',function (req,res) {
+    var id = req.params.id;
+    console.log(id);
+     UserModel.findOne({id:id},function(err,results){
+        if(err){
+            res.send({});
+        }
+        console.dir(results);
+        if(results){
+            var userData = {
+                "id": results.id,
+                "name": results.name
+            };
+            console.log(userData);
+            res.send(userData);
+        }
+        else{
+            res.send({});
+        }
+    });
+})
+//테스트를 위한 요청들
+app.get('/test',function(req,res){
+    console.log("/test 진입");
+    var dummy = {
+        title: "poty",
+        addr: "www.xxxx.co.kr",
+        /*developer: "B511084 백경현, B 유현우, B 천성혁",*/
+        developer: [{id:"B511084",name:"백경현"}, {id:"B", name:"유현우"}, {id:"B",name:"천성혁"}],
+        content: "항상 건강하시고 또 건강하세요"
+    };
+    console.log(dummy);
+    axios({
+        url:"http://localhost:4000/process/save",
+        method:"post",
+        data:dummy
+    }).then((e)=>{console.log("정상");res.send(e.status)}).catch((error)=>{console.log(error); res.send(error)});
+});
+app.get('/test2',function(req,res){
+    console.log("/test 진입");
+    var dummy = {
+        title: "poty2",
+        addr: "www.xxxx.co.kr",
+        /*developer: "B511084 백경현, B 유현우, B 천성혁",*/
+        developer: [{id:"B511084",name:"백경현"}, {id:"B", name:"유현우"}, {id:"B",name:"천성혁"}],
+        content: "항상 건강하시고 또 건강하세요"
+    };
+    console.log(dummy);
+    axios({
+        url:"http://localhost:4000/process/save",
+        method:"post",
+        data:dummy
+    }).then((e)=>{console.log("정상");res.send(e.status)}).catch((error)=>{console.log(error); res.send(error)});
+});
+app.get('/testlogin',function(req,res){
+    console.log("/testlogin 진입");
+    var dummy = {
+        id: "test1",
+        password: "1111"
+    };
+    console.log(dummy);
+    axios({
+        url:"http://localhost:4000/process/login",
+        method:"post",
+        data:dummy
+    }).then((e)=>{console.log("정상"); req.session.user_id=e.data.user_id;res.send(e.status);})
+        .catch((error)=>{console.log(error); res.send(error)});
+});
+app.get('/testUser',function(req,res){
+    console.log("/testlogin 진입");
+    var dummy = {
+        id: "test2",
+        password: "2222",
+        name:"바보바보"
+    };
+    console.log(dummy);
+    axios({
+        url:"http://localhost:4000/process/adduser",
+        method:"post",
+        data:dummy
+    }).then((e)=>{console.log("정상");res.send(e.status)}).catch((error)=>{console.log(error); res.send(error)});
 });
 app.use(expressErrorHandler.httpError(404));
 app.use(errorHandler);
