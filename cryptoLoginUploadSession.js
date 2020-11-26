@@ -477,11 +477,10 @@ app.use('/users/:id',function (req,res) {
 app.get('/test',function(req,res){
     console.log("/test 진입");
     var dummy = {
-        title: "poty",
-        addr: "www.xxxx.co.kr",
-        /*developer: "B511084 백경현, B 유현우, B 천성혁",*/
-        developer: [{id:"B511084",name:"백경현"}, {id:"B", name:"유현우"}, {id:"B",name:"천성혁"}],
-        content: "항상 건강하시고 또 건강하세요"
+        title: "POTY",
+        addr: "https://hongik.webex.com/meet/puba5",
+        developer: [{id:"B511126", name:"유현우"},{id:"B511084", name:"백경현"},{id:"B611202", name:"천성혁"}],
+        content: "영상 댓글의 타임스탬프와 추천 데이터를 분석하여 영상의 하이라이트를 추천해주는 서비스 "
     };
     console.log(dummy);
     axios({
@@ -493,11 +492,10 @@ app.get('/test',function(req,res){
 app.get('/test2',function(req,res){
     console.log("/test 진입");
     var dummy = {
-        title: "코로나19",
-        addr: "www.xxxx.co.kr",
-        /*developer: "B511084 백경현, B 유현우, B 천성혁",*/
-        developer: [{id:"B",name:"주성호"}],
-        content: "항상 건강하시고 또 건강하세요"
+        title: "LegendofSummoner",
+        addr: "https://hongik.webex.com/meet/bakseongjin",
+        developer: [{id:"B511086", name:"백성진"},{id:"B611051", name:"김태희"}],
+        content: "소환사가 소환수를 통해 인간의 문명을 원시시대부터 정복하는 게임"
     };
     console.log(dummy);
     axios({
@@ -509,11 +507,25 @@ app.get('/test2',function(req,res){
 app.get('/test3',function(req,res){
     console.log("/test 진입");
     var dummy = {
-        title: "아주멋진작품",
-        addr: "www.xxxx.co.kr",
-        /*developer: "B511084 백경현, B 유현우, B 천성혁",*/
-        developer: [{id:"B",name:"이인재"}],
-        content: "항상 건강하시고 또 건강하세요"
+        title: "코로나동선관리",
+        addr: "https://hongik.webex.com/meet/etkl8888",
+        developer: [{id:"B411209", name:"주성호"}],
+        content: "특정날짜의 확진자 동선과 나의 동선을 비교해볼 수 있는 모바일 어플"
+    };
+    console.log(dummy);
+    axios({
+        url:"http://localhost:4000/process/save",
+        method:"post",
+        data:dummy
+    }).then((e)=>{console.log("정상");res.send(e.status)}).catch((error)=>{console.log(error); res.send(error)});
+});
+app.get('/test4',function(req,res){
+    console.log("/test 진입");
+    var dummy = {
+        title: "메트로음성AI",
+        addr: "https://hongik.webex.com/meet/wnsgudrnrn",
+        developer: [{id:"B511209", name:"최아성"},{id:"B511074", name:"박준형"},{id:"B711025", name:"김소현"}],
+        content: "시각장애인을 위한 메트로 음성 AI"
     };
     console.log(dummy);
     axios({
