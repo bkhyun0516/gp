@@ -493,10 +493,26 @@ app.get('/test',function(req,res){
 app.get('/test2',function(req,res){
     console.log("/test 진입");
     var dummy = {
-        title: "poty2",
+        title: "코로나19",
         addr: "www.xxxx.co.kr",
         /*developer: "B511084 백경현, B 유현우, B 천성혁",*/
-        developer: [{id:"B511084",name:"백경현"}, {id:"B", name:"유현우"}, {id:"B",name:"천성혁"}],
+        developer: [{id:"B",name:"주성호"}],
+        content: "항상 건강하시고 또 건강하세요"
+    };
+    console.log(dummy);
+    axios({
+        url:"http://localhost:4000/process/save",
+        method:"post",
+        data:dummy
+    }).then((e)=>{console.log("정상");res.send(e.status)}).catch((error)=>{console.log(error); res.send(error)});
+});
+app.get('/test3',function(req,res){
+    console.log("/test 진입");
+    var dummy = {
+        title: "아주멋진작품",
+        addr: "www.xxxx.co.kr",
+        /*developer: "B511084 백경현, B 유현우, B 천성혁",*/
+        developer: [{id:"B",name:"이인재"}],
         content: "항상 건강하시고 또 건강하세요"
     };
     console.log(dummy);
