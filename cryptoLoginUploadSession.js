@@ -15,7 +15,7 @@ var fs = require('fs');
 var cors = require('cors');
 var mykey = '###3333###';
 var axios = require("axios");
-app.set('port',3000);
+
 
 var database;
 var UserSchema;
@@ -99,7 +99,7 @@ function createUserSchema() {
     });
 }
 
-app.set('port',3000);
+app.set('port',4000);
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:true}));
 app.use('/public',static(path.join(__dirname, 'public')));
