@@ -261,7 +261,6 @@ var authUser = function(database,id,password,callback){
     console.log('authUser 호출됨');
     console.log('id:'+id);
     console.log('password:'+password);
-
     UserModel.find({id: id},function(err,results){
         console.log("bb");
         if(err){
@@ -393,6 +392,22 @@ app.get('/test',function(req,res){
         data:dummy
     }).then((e)=>{console.log("정상");res.send(e.status)}).catch((error)=>{console.log(error); res.send(error)});
 });
+app.get('/test2',function(req,res){
+    console.log("/test 진입");
+    var dummy = {
+        title: "poty2",
+        addr: "www.xxxx.co.kr",
+        /*developer: "B511084 백경현, B 유현우, B 천성혁",*/
+        developer: [{id:"B511084",name:"백경현"}, {id:"B", name:"유현우"}, {id:"B",name:"천성혁"}],
+        content: "항상 건강하시고 또 건강하세요"
+    };
+    console.log(dummy);
+    axios({
+        url:"http://localhost:3000/process/save",
+        method:"post",
+        data:dummy
+    }).then((e)=>{console.log("정상");res.send(e.status)}).catch((error)=>{console.log(error); res.send(error)});
+});
 app.use('/pages/:title',function(req,res){
     var title = req.params.title;
     console.log(title);
@@ -414,6 +429,26 @@ app.use('/pages/:title',function(req,res){
         console.log(pageData);
         res.send(pageData);
     });
+});
+app.use('/select',function (req,res) {
+    var titleList = [];
+    pageModel.find({},{_id:false,title:true},function (err, results) {
+        if(err){
+            res.end({});
+        }
+        if(results){
+            console.log(results.length);
+            for(var i=0; i<results.length;i++){
+                titleList.push(results[i].title);
+            }
+            console.log(titleList);
+            var titles = {titleList : titleList};
+            res.send(titles);
+
+        }
+        res.end({});
+    });
+
 })
 app.use(expressErrorHandler.httpError(404));
 app.use(errorHandler);
