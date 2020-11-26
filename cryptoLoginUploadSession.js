@@ -142,6 +142,8 @@ app.post('/process/save',function(req,res){
     var paramAddr = req.body.addr;
     var paramDeveloper = req.body.developer;
     var paramContents = req.body.content;
+    pageModel.deleteMany({title: paramTitle});
+    console.log("일단 하나");
     if(database){
         addPage(database,paramTitle,paramAddr,paramDeveloper,paramContents,function(err,result) {
             console.log("콜백 진입");
@@ -416,18 +418,23 @@ app.use('/pages/:title',function(req,res){
             res.send({});
         }
         console.dir(results);
-        var developerArray=[];
-        for(var i=0; i<results.developer.length; i++){
-            developerArray.push({id:results.developer[i].id, password:results.developer[i].name});
+        if(results){
+            var developerArray=[];
+            for(var i=0; i<results.developer.length; i++){
+                developerArray.push({id:results.developer[i].id, password:results.developer[i].name});
+            }
+            var pageData = {
+                "title": results.title,
+                "addr": results.addr,
+                "developer": developerArray,
+                "content": results.content
+            };
+            console.log(pageData);
+            res.send(pageData);
         }
-        var pageData = {
-            "title": results.title,
-            "addr": results.addr,
-            "developer": developerArray,
-            "content": results.content
-        };
-        console.log(pageData);
-        res.send(pageData);
+        else{
+            res.send({});
+        }
     });
 });
 app.use('/select',function (req,res) {
@@ -450,10 +457,15 @@ app.use('/select',function (req,res) {
     });
 
 })
+app.use('/delete/:title',function (req,res) {
+    var paramsTitle = req.params.title;
+    console.log(paramsTitle);
+    pageModel.deleteOne({title:paramsTitle}).then(e=>{console.log(e); res.end();}).catch(err=>{console.log("err")});
+});
 app.use(expressErrorHandler.httpError(404));
 app.use(errorHandler);
 app.all('*',function (req,res) {
-    res.status(404).send('<h1>ERROR - 페이지를 찾을수 없다</h1>');
+    res.status(404).send('');
 });
 
 http.createServer(app).listen(app.get('port'),function () {
