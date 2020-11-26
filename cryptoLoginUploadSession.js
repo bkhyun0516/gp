@@ -541,7 +541,7 @@ app.get('/testUser',function(req,res){
     var dummy = {
         id: "test1",
         password: "1111",
-        name:"바보바보팀"
+        name:"좋은팀"
     };
     console.log(dummy);
     axios({
