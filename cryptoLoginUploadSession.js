@@ -523,9 +523,9 @@ app.get('/testlogin',function(req,res){
 app.get('/testUser',function(req,res){
     console.log("/testlogin 진입");
     var dummy = {
-        id: "test2",
-        password: "2222",
-        name:"바보바보"
+        id: "test1",
+        password: "1111",
+        name:"바보바보팀"
     };
     console.log(dummy);
     axios({
