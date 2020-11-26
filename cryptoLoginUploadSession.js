@@ -142,25 +142,32 @@ app.post('/process/save',function(req,res){
     var paramAddr = req.body.addr;
     var paramDeveloper = req.body.developer;
     var paramContents = req.body.content;
-    pageModel.deleteMany({title: paramTitle});
-    console.log("일단 하나");
-    if(database){
-        addPage(database,paramTitle,paramAddr,paramDeveloper,paramContents,function(err,result) {
-            console.log("콜백 진입");
-            if(err){
-                console.log('err');
-                res.end();
+    pageModel.findOne({title: paramTitle},function (error,resultD) {
+        if(error){
+            res.end();
+        }
+        if(resultD) {
+            res.end();
+        }else{
+            if(database){
+                addPage(database,paramTitle,paramAddr,paramDeveloper,paramContents,function(err,result) {
+                    console.log("콜백 진입");
+                    if(err){
+                        console.log('err');
+                        res.end();
+                    }
+                    if(result){
+                        console.log("결과");
+                        //console.dir(result);
+                        res.status(202).end();
+                    }else{
+                        console.log('실패');
+                        res.end();
+                    }
+                });
             }
-            if(result){
-                console.log("결과");
-               //console.dir(result);
-                res.status(202).end();
-            }else{
-                console.log('실패');
-                res.end();
-            }
-        });
-    }
+        }
+    });
 })
 //logout route
 app.post('/process/logout',function(req,res){
@@ -218,9 +225,9 @@ app.post('/process/adduser',function (req,res) {
 
 
 var errorHandler = expressErrorHandler({
-    static:{
+   /* static:{
         '404':'./public/404.html'
-    }
+    }*/
 });
 //유저 추가 함수
 var addUser =  function(database, id, password, name, callback){
@@ -372,7 +379,7 @@ app.use("/files/:fileName",function (req,res) {
             res.send({});
         }
         console.dir(results);
-        var filePath = 'localhost:3000/upload/'+results.filename;
+        var filePath = 'localhost:4000/upload/'+results.filename;
         console.log(filePath);
         res.send(filePath);
     });
@@ -389,7 +396,7 @@ app.get('/test',function(req,res){
     };
     console.log(dummy);
     axios({
-        url:"http://localhost:3000/process/save",
+        url:"http://localhost:4000/process/save",
         method:"post",
         data:dummy
     }).then((e)=>{console.log("정상");res.send(e.status)}).catch((error)=>{console.log(error); res.send(error)});
@@ -405,7 +412,7 @@ app.get('/test2',function(req,res){
     };
     console.log(dummy);
     axios({
-        url:"http://localhost:3000/process/save",
+        url:"http://localhost:4000/process/save",
         method:"post",
         data:dummy
     }).then((e)=>{console.log("정상");res.send(e.status)}).catch((error)=>{console.log(error); res.send(error)});
