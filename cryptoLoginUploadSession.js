@@ -170,10 +170,11 @@ app.post('/process/save',function(req,res){
     });
 })
 //logout route
-app.post('/process/logout',function(req,res){
+app.use('/process/logout',function(req,res){
     req.session.destroy();
     res.end();
 })
+
 //login route
 app.post('/process/login',function (req,res) {
     console.log('/process/login  호출됨');
@@ -188,7 +189,7 @@ app.post('/process/login',function (req,res) {
             if(docs){
                 console.dir(docs);
                 var username = docs[0].name;
-                req.session.user_id=docs[0].id;/////////////////////////
+                req.session.user_id=docs[0].id;
                 res.end();
             }
             else{
@@ -197,7 +198,18 @@ app.post('/process/login',function (req,res) {
         })
     }
 });
+//sessionId get
+app.use('/getSessionId',function (req,res) {
+    console.log("SessionId");
+    console.log(req.session);
 
+    if(req.session.user_id){
+        var userId = req.session.user_id;
+        res.send({sessionId: userId});
+    }else{
+        res.send({});
+    }
+})
 //user 추가
 app.post('/process/adduser',function (req,res) {
     console.log('/process/adduser 호출');
