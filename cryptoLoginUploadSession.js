@@ -66,7 +66,6 @@ function createUserSchema() {
         created_at:{type:Date,index:{unique:false},default:Date.now},
         updated_at:{type:Date,index:{unique:false},default:Date.now}
     });
-
     UserSchema.virtual('password')
         .set(function (password) {
             this._password = password;
@@ -74,7 +73,7 @@ function createUserSchema() {
             this.hashed_password = this.encryptPassword(password);
         }).get(function () {
         return this._password;
-    })
+    });
     UserSchema.method('encryptPassword',function (plainText, inSalt) {
         if(inSalt){
             return crypto.createHmac('sha1',inSalt).update(plainText).digest('hex');
@@ -134,11 +133,11 @@ var addPage = function(database, title, addr, developer, content, callback){
         callback(null, page);
     });
 }
+
 //페이지 정보 DB 등록
 app.post('/process/save',function(req,res){
     console.log("page등록");
     console.log(req.body);
-
     var paramTitle = req.body.title;
     var paramAddr = req.body.addr;
     var paramDeveloper = req.body.developer;
@@ -148,15 +147,15 @@ app.post('/process/save',function(req,res){
             console.log("콜백 진입");
             if(err){
                 console.log('err');
-                res.send({});
+                res.end();
             }
             if(result){
                 console.log("결과");
                //console.dir(result);
-                res.send("성공");
+                res.status(202).end();
             }else{
                 console.log('실패');
-                res.send({});
+                res.end();
             }
         });
     }
@@ -164,6 +163,7 @@ app.post('/process/save',function(req,res){
 //logout route
 app.post('/process/logout',function(req,res){
     req.session.destroy();
+    res.end();
 })
 //login route
 app.post('/process/login',function (req,res) {
@@ -180,19 +180,15 @@ app.post('/process/login',function (req,res) {
                 console.dir(docs);
                 var username = docs[0].name;
                 req.session.user_id=docs[0].id;/////////////////////////
-                res.writeHead('200',{'Content-Type':'text/html;charset=utf8'});
-                res.write("<br><br><a href='/public/login.html'>다시 로그인하기</a>");
                 res.end();
             }
             else{
-                res.writeHead('200',{'Content-Type':'text/html;charset=utf8'});
                 res.end();
             }
         })
-    }else{
-
     }
 });
+
 //user 추가
 app.post('/process/adduser',function (req,res) {
     console.log('/process/adduser 호출');
@@ -207,20 +203,13 @@ app.post('/process/adduser',function (req,res) {
             }
             if(result){
                 console.dir(result);
-                res.writeHead('200',{'Content-Type':'text/html;charset=utf8'});
-                res.write('<h2>사용자 추가 성공</h2>');
-                res.write("<br><br><a href='/public/login.html'>로그인해보기</a>");
                 res.end();
             }else{
-                res.writeHead('200',{'Content-Type':'text/html;charset=utf8'});
-                res.write('<h2>사용자 연결 실패</h2>');
                 res.end();
             }
         });
     }
     else{
-        res.writeHead('200',{'Content-Type':'text/html;charset=utf8'});
-        res.write('<h2>사용자 추가 실패</h2>');
         res.end();
     }
 })
@@ -242,7 +231,7 @@ var addUser =  function(database, id, password, name, callback){
             callback(err,null);
             return;
         }
-        console.log("사용자데이터 추가");
+        console.log("사용자 데이터 추가");
         callback(null, user);
     });
 }
@@ -367,13 +356,6 @@ app.post('/process/upload',upload.array('uploadFile',1),function (req,res) {
             paramSize = files[index].size;
         }
 
-        res.writeHead('200',{'Content-Type':'text/html;charset=utf8'});
-        res.write('<h3> 파일 업로드 성공 </h3>');
-        res.write('<hr/>');
-        res.write('<p> 원래파일이름' +  paramOriginalname +'</p>');
-        res.write('<p> 저장파일명: '+ paramFilename +'</p>');
-        res.write('<p>  파일 타입 ' + paramMimetype +'</p>');
-        res.write('<p> 파일 크기' + paramSize +'</p>');
         res.end();
 
     } catch(err){
@@ -409,7 +391,7 @@ app.get('/test',function(req,res){
         url:"http://localhost:3000/process/save",
         method:"post",
         data:dummy
-    }).then((e)=>{res.send(e);}).catch((error)=>{res.send("err")});
+    }).then((e)=>{console.log("정상");res.send(e.status)}).catch((error)=>{console.log(error); res.send(error)});
 });
 app.use('/pages/:title',function(req,res){
     var title = req.params.title;
